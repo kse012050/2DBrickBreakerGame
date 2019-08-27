@@ -40,6 +40,24 @@
         document.addEventListener("keydown", keyDownHandler, false);
         document.addEventListener("keyup", keyUpHandler, false);
 
+        // 벽돌 변수 설정
+        var brickRowCount = 3;
+        var brickColumnCount = 5;
+        var brickWidth = 75;
+        var brickHeight = 20;
+        var brickPadding = 10;
+        var brickOffsetTop = 30;
+        var brickOffsetLeft = 30;
+
+        var bricks = [];
+        for(var c = 0; c < brickColumnCount; c++){
+            bricks[c] = [];
+            for(var r = 0; r < brickColumnCount; r++){
+                bricks[c][r] = { x : 0 , y : 0 };
+            }
+        }
+
+
         function drawBall(){
             ctx.beginPath();
             ctx.arc(x,y,ballRadius,0,Math.PI*2);
@@ -54,6 +72,22 @@
             ctx.fillStyle = "#0095DD";
             ctx.fill();
             ctx.closePath();
+        }
+
+        function drawBricks(){
+            for(var c = 0; c < brickColumnCount; c++){
+                for(var r = 0; r < brickRowCount; r ++){
+                    var brickX = (c*(brickWidth + brickPadding)) + brickOffsetLeft;
+                    var brickY = (r*(brickHeight + brickPadding)) + brickOffsetTop;
+                    bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+                    ctx.beginPath();
+                    ctx.rect(brickX,brickY, brickWidth, brickHeight);
+                    ctx.fillStyle = "#0095DD";
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
         }
         
         function keyDownHandler(e) {
@@ -78,13 +112,26 @@
             ctx.clearRect(0,0, canvas.width, canvas.height);
             drawPaddle();
             drawBall();
+            drawBricks();
+
             if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
                 dx = -dx;
             }
-            if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+            if(y + dy < ballRadius) {
                 dy = -dy;
             }
+            else if(y + dy > canvas.height-ballRadius) {
+                if(x > paddleX && x < paddleX + paddleWidth) {
+                    dy = -dy;
+                }
+                else {
+                    clearInterval(interval);
+                    alert("GAME OVER");
+                    document.location.reload();
+                }
+            }
          
+                    // clearInterval 메서드는 setInterval로 반복하고 있는걸 멈추게 합니다.
             if(rightPressed && paddleX < canvas.width-paddleWidth) {
                 paddleX += 7;
             }
@@ -95,7 +142,7 @@
             x += dx;
             y += dy;
         }
-        setInterval(draw,10);
+        var interval = setInterval(draw,10);
         // draw() 기능은 setInterval 10밀리초 마다 실행합니다.
         </script>
     </body>
